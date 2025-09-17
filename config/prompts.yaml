@@ -1,0 +1,24 @@
+- prompt_name: test_prompt
+  description: A test prompt
+  prompt_value: |
+    What are the 3 major exports of Canada?
+- prompt_name: intent_identification
+  description: Identify the intent of the user
+  prompt_value: |
+    You are an intent classifier for an assistant.
+    Here are the possible nodes you can select from:
+
+    {nodes_list}
+
+    User Query: {user_query}
+
+    Choose the most relevant node and return it in structured JSON format
+- prompt_name: summary_prompt
+  description: Summarize report
+  prompt_value: |
+    You are a financial analyst.
+    Create a polished summary of the following earnings report:
+
+    {report_data}
+
+    Ensure your summary is well formatted, clear, and free of any factual errors

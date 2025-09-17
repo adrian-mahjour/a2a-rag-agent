@@ -1,0 +1,4 @@
+gemma3:1b-it-qat:
+  num_predict: 100
+  temperature": 0
+all-minilm:
