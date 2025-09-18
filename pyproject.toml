@@ -20,6 +20,7 @@ dependencies = [
     "pydantic-settings>=2.10.1",
     "langchain>=0.3.27",
     "langchain-text-splitters>=0.3.11",
+    "numpy>=2.3.3",
 ]
 
 [tool.hatch.build.targets.wheel]

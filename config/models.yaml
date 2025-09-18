@@ -1,4 +1,5 @@
 llama3.2:3b:
-  num_predict: 100
-  temperature": 0
-all-minilm:
+  num_predict: 500
+  temperature: 0
+all-minilm:33m:
+  temperature: 0

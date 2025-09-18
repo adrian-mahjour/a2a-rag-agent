@@ -142,9 +142,7 @@ class CurrencyAgent:
         return {
             "is_task_complete": False,
             "require_user_input": True,
-            "content": (
-                "We are unable to process your request at the moment. " "Please try again."
-            ),
+            "content": ("We are unable to process your request at the moment. Please try again."),
         }
 
     SUPPORTED_CONTENT_TYPES = ["text", "text/plain"]

@@ -1,0 +1,70 @@
+“We once again exceeded expectations for revenue, profit and free cash flow in the quarter.
+IBM remains highly differentiated in the market because of our deep innovation and domain expertise,
+both crucial in helping clients deploy and scale AI. Our generative AI book of business continues to
+accelerate and now stands at more than $7.5 billion," said Arvind Krishna, IBM chairman, president
+and chief executive officer. "With our strong first-half performance, we are raising our full-year
+outlook for free cash flow, which we expect to exceed $13.5 billion.”
+
+Second-Quarter Highlights
+• Revenue
+– Revenue of $17.0 billion, up 8 percent, up 5 percent at constant currency
+– Software revenue up 10 percent, up 8 percent at constant currency
+– Consulting revenue up 3 percent, flat at constant currency
+– Infrastructure revenue up 14 percent, up 11 percent at constant currency
+
+• Profit
+– Gross Profit Margin: GAAP: 58.8 percent, up 200 basis points; Operating (Non-GAAP):
+60.1 percent, up 230 basis points
+– Pre-Tax Income Margin: GAAP: 15.3 percent, up 120 basis points; Operating (Non-GAAP):
+18.8 percent, up 110 basis points
+
+• Cash Flow
+– Year to date, net cash from operating activities of $6.1 billion; free cash flow of $4.8 billion
+
+Segment Results for Second Quarter
+• Software — revenues of $7.4 billion, up 10 percent, up 8 percent at constant currency:
+– Hybrid Cloud (Red Hat) up 16 percent, up 14 percent at constant currency
+– Automation up 16 percent, up 14 percent at constant currency
+– Data up 9 percent, up 7 percent at constant currency
+– Transaction Processing up 1 percent, down 2 percent at constant currency
+
+• Consulting — revenues of $5.3 billion, up 3 percent, flat at constant currency:
+– Strategy and Technology up 1 percent, down 2 percent at constant currency
+– Intelligent Operations up 5 percent, up 2 percent at constant currency
+
+• Infrastructure — revenues of $4.1 billion, up 14 percent, up 11 percent at constant currency:
+– Hybrid Infrastructure up 21 percent, up 19 percent at constant currency
+
+• IBM Z up 70 percent, up 67 percent at constant currency
+
+• Distributed Infrastructure down 15 percent, down 17 percent at constant currency
+– Infrastructure Support down 1 percent, down 3 percent at constant currency
+
+• Financing — revenues of $0.2 billion, down 2 percent, down 3 percent at constant currency
+
+Cash Flow and Balance Sheet
+
+In the second quarter, the company generated net cash from operating activities of
+$1.7 billion, down $0.4 billion year to year. IBM’s free cash flow was $2.8 billion, up $0.2 billion year
+to year. The company returned $1.6 billion to shareholders in dividends in the second quarter.
+For the first six months of the year, the company generated net cash from operating activities
+of $6.1 billion, down $0.2 billion year to year. IBM's free cash flow was $4.8 billion, up $0.3 billion
+year to year.
+
+IBM ended the second quarter with $15.5 billion of cash, restricted cash and marketable
+securities, up $0.7 billion from year-end 2024. Debt, including IBM Financing debt of $11.7 billion,
+totaled $64.2 billion, up $9.2 billion year to date.
+
+Full-Year 2025 Expectations
+
+• Revenue: The company continues to expect constant currency revenue growth of at least
+5 percent. At current foreign exchange rates, currency is expected to be about a one-and-a-halfpoint tailwind to growth for the year.
+• Free cash flow: The company now expects more than $13.5 billion in free cash flow for the full
+year.
+
+Dividend Declaration
+
+On July 23, 2025, the IBM board of directors approved a regular quarterly cash dividend of
+$1.68 per common share, to stockholders of record on August 8, 2025. With payment of the
+September 10, 2025 dividend, IBM will have paid consecutive quarterly dividends every year since
+1916. 

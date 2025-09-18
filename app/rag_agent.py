@@ -4,6 +4,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from langchain.tools.retriever import create_retriever_tool
 from langchain_core.embeddings.embeddings import Embeddings
+from langchain_core.language_models.llms import BaseLLM
 from langchain_core.messages.base import BaseMessage
 from langchain_core.tools.simple import Tool
 from langchain_core.vectorstores import VectorStore
@@ -57,9 +58,9 @@ class GradeDocuments(BaseModel):
 
 
 class AgenticRag:
-    def __init__(self, input_file: str, retriever_tool: Tool) -> None:
+    def __init__(self, llm: BaseLLM, retriever_tool: Tool) -> None:
         # TODO: fix this
-        self.agent_model = ChatOllama(model="llama3.2:3b", temperature=0)
+        self.agent_model = llm
         self.retriever_tool = retriever_tool
         self.prompts = load_prompts(prompt_config_filepath="config/prompts.yaml")
 
@@ -121,13 +122,11 @@ class AgenticRag:
 
     def compile_graph(self) -> CompiledStateGraph:
         """Compiles the AgenticRAG graph"""
-        print("Compiling Graph")
-
         graph_builder = StateGraph(MessagesState)
 
         # Define the nodes
         graph_builder.add_node(self.generate_query_or_respond)
-        graph_builder.add_node("retrieve", ToolNode[self.retriever_tool])
+        graph_builder.add_node("retrieve", ToolNode([self.retriever_tool]))
         graph_builder.add_node(self.rewrite_question)
         graph_builder.add_node(self.generate_answer)
 

@@ -67,8 +67,8 @@ sequenceDiagram
    ```bash
    If you're using a Google Gemini model (gemini-pro, etc.):
    echo "GOOGLE_API_KEY=your_api_key_here" > .env
-  
-   
+
+
    If you're using OpenAI or any compatible API (e.g., local LLM via Ollama, LM Studio, etc.):
 
    echo "API_KEY=your_api_key_here" > .env  (not neccessary if have no api key)
@@ -99,30 +99,31 @@ Agent can also be built using a container file.
 
 1. Navigate to the `samples/python/agents/langgraph` directory:
 
-  ```bash
-  cd samples/python/agents/langgraph
-  ```
+```bash
+cd samples/python/agents/langgraph
+```
 
 2. Build the container file
 
-    ```bash
-    podman build . -t langgraph-a2a-server
-    ```
+   ```bash
+   podman build . -t langgraph-a2a-server
+   ```
 
 > [!Tip]  
 > Podman is a drop-in replacement for `docker` which can also be used in these commands.
 
 3. Run your container
 
-    ```bash
-    podman run -p 10000:10000 -e GOOGLE_API_KEY=your_api_key_here langgraph-a2a-server
-    ```
+   ```bash
+   podman run -p 10000:10000 -e GOOGLE_API_KEY=your_api_key_here langgraph-a2a-server
+   ```
 
 4. Run A2A client (follow step 5 from the section above)
 
 > [!Important]
-> * **Access URL:** You must access the A2A client through the URL `0.0.0.0:10000`. Using `localhost` will not work.
-> * **Hostname Override:** If you're deploying to an environment where the hostname is defined differently outside the container, use the `HOST_OVERRIDE` environment variable to set the expected hostname on the Agent Card. This ensures proper communication with your client application.
+>
+> - **Access URL:** You must access the A2A client through the URL `0.0.0.0:10000`. Using `localhost` will not work.
+> - **Hostname Override:** If you're deploying to an environment where the hostname is defined differently outside the container, use the `HOST_OVERRIDE` environment variable to set the expected hostname on the Agent Card. This ensures proper communication with your client application.
 
 ## Technical Implementation
 
@@ -481,10 +482,31 @@ data: {"id":"6d12d159-ec67-46e6-8d43-18480ce7f6ca","jsonrpc":"2.0","result":{"co
 - [Frankfurter API](https://www.frankfurter.app/docs/)
 - [Google Gemini API](https://ai.google.dev/gemini-api)
 
-
 ## Disclaimer
+
 Important: The sample code provided is for demonstration purposes and illustrates the mechanics of the Agent-to-Agent (A2A) protocol. When building production applications, it is critical to treat any agent operating outside of your direct control as a potentially untrusted entity.
 
-All data received from an external agent—including but not limited to its AgentCard, messages, artifacts, and task statuses—should be handled as untrusted input. For example, a malicious agent could provide an AgentCard containing crafted data in its fields (e.g., description, name, skills.description). If this data is used without sanitization to construct prompts for a Large Language Model (LLM), it could expose your application to prompt injection attacks.  Failure to properly validate and sanitize this data before use can introduce security vulnerabilities into your application.
+All data received from an external agent—including but not limited to its AgentCard, messages, artifacts, and task statuses—should be handled as untrusted input. For example, a malicious agent could provide an AgentCard containing crafted data in its fields (e.g., description, name, skills.description). If this data is used without sanitization to construct prompts for a Large Language Model (LLM), it could expose your application to prompt injection attacks. Failure to properly validate and sanitize this data before use can introduce security vulnerabilities into your application.
 
 Developers are responsible for implementing appropriate security measures, such as input validation and secure handling of credentials to protect their systems and users.
+
+curl -X POST http://localhost:10000/ \
+ -H "Content-Type: application/json" \
+ -d '{
+"id": "6d12d159-ec67-46e6-8d43-18480ce7f6ca",
+"jsonrpc": "2.0",
+"method": "message/stream",
+"params": {
+"message": {
+"kind": "message",
+"messageId": "2f9538ef0984471aa0d5179ce3c67a28",
+"parts": [
+{
+"kind": "text",
+"text": "how much is 10 USD in INR?"
+}
+],
+"role": "user"
+}
+}
+}'

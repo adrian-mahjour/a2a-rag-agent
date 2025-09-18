@@ -22,3 +22,41 @@
     {report_data}
 
     Ensure your summary is well formatted, clear, and free of any factual errors
+- prompt_name: grade_prompt
+  description: Grade the relevance of a retrived documents to a user question
+  prompt_value: |
+    You are a grader cassessing relevance of a retrived docuemtn to a user question.
+    Here is the retrieved document:
+
+    {context}
+
+    Here is the user question:
+
+    {question}
+
+    If the document contains keyword(s) or semantic meaning related to the suer question, grade it as relevant.
+    Give a binary score 'yes' or 'no' score to indicate wheter the document is relevant to teh question.
+- prompt_name: rewrite_prompt
+  description: Rewrite the user query if relevant documents were not found
+  prompt_value: |
+    Look at the input and try to reason about the underlying semantic intent / meaning.
+    Here is the initial question:
+
+    {question}
+
+    Formulate an improved question.
+- prompt_name: generate_prompt
+  description: Generate an answer to the user given input context
+  prompt_value: |
+    You are a helpful assistant for question-answering tasks related to financial reports.
+    Use the following pieces of retrieved context to answer the question.
+    If you don't know the answer, just say that you don't know.
+    Ensure your answer is well-structured, verbose, detailed, factually correct, and answers the given question.
+
+    Question:
+
+    {question}
+
+    Context:
+
+    {context}
