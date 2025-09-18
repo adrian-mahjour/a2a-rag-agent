@@ -6,7 +6,7 @@ from langchain_core.output_parsers.transform import BaseTransformOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable
 
-from app.genai.models import PromptData
+from a2a_rag_agent.genai.models import PromptData
 
 # TODO: create a setting pydantic for this
 

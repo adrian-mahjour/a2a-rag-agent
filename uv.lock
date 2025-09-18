@@ -8,7 +8,7 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "a2a-sample-agent-langgraph"
+name = "a2a-rag-agent"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

@@ -3,9 +3,9 @@ import os
 import yaml
 from dotenv import load_dotenv
 
-from app.llm.llm_provider import LLMProvider
-from app.llm.llm_settings import LLMSettings
-from app.genai.initialize import load_prompts, create_chain
+from a2a_rag_agent.llm.llm_provider import LLMProvider
+from a2a_rag_agent.llm.llm_settings import LLMSettings
+from a2a_rag_agent.genai.initialize import load_prompts, create_chain
 
 load_dotenv()
 

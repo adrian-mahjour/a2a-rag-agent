@@ -13,7 +13,7 @@ from a2a.types import (
     TransportProtocol,
 )
 from a2a.utils.constants import AGENT_CARD_WELL_KNOWN_PATH, EXTENDED_AGENT_CARD_PATH
-from app.simple_client import A2ASimpleClient
+from a2a_rag_agent.simple_client import A2ASimpleClient
 
 
 async def main() -> None:

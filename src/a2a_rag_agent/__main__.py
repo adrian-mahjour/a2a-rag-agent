@@ -20,8 +20,8 @@ from a2a.types import (
 )
 from dotenv import load_dotenv
 
-from app.agent import CurrencyAgent
-from app.agent_executor import CurrencyAgentExecutor
+from a2a_rag_agent.agent import CurrencyAgent
+from a2a_rag_agent.agent_executor import CurrencyAgentExecutor
 
 
 load_dotenv()

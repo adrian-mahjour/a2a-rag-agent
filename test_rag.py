@@ -6,11 +6,10 @@ from dotenv import load_dotenv
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from app.genai.initialize import create_chain, load_prompts
-from app.llm.llm_provider import LLMProvider
-from app.llm.llm_settings import LLMSettings
-from app.rag_agent import AgenticRag, init_retriver_tool
-from app.utils.langgraph_streaming import stream_graph_updates
+from a2a_rag_agent.llm.llm_provider import LLMProvider
+from a2a_rag_agent.llm.llm_settings import LLMSettings
+from a2a_rag_agent.rag_agent import AgenticRag, init_retriver_tool
+from a2a_rag_agent.utils.langgraph_streaming import stream_graph_updates
 
 load_dotenv()
 

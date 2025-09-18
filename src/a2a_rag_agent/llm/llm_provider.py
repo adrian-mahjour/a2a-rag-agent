@@ -6,10 +6,10 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
 from langchain_ollama import ChatOllama, OllamaEmbeddings, OllamaLLM
 
-from app.llm.llm_backend import LLMBackend
-from app.llm.llm_settings import LLMSettings
-from app.llm.ollama import OllamaSettings
-from app.utils.singleton_meta import SingletonMeta
+from a2a_rag_agent.llm.llm_backend import LLMBackend
+from a2a_rag_agent.llm.llm_settings import LLMSettings
+from a2a_rag_agent.llm.ollama import OllamaSettings
+from a2a_rag_agent.utils.singleton_meta import SingletonMeta
 
 
 class LLMProvider(metaclass=SingletonMeta):

@@ -15,7 +15,7 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, Field
 
-from app.genai.initialize import load_prompts
+from a2a_rag_agent.genai.initialize import load_prompts
 
 
 load_dotenv()
