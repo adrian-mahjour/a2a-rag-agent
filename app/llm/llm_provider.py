@@ -6,10 +6,10 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
 from langchain_ollama import ChatOllama, OllamaEmbeddings, OllamaLLM
 
-from a2a_rag_agent.llm.llm_backend import LLMBackend
-from a2a_rag_agent.llm.llm_settings import LLMSettings
-from a2a_rag_agent.llm.ollama import OllamaSettings
-from a2a_rag_agent.utils.singleton_meta import SingletonMeta
+from app.llm.llm_backend import LLMBackend
+from app.llm.llm_settings import LLMSettings
+from app.llm.ollama import OllamaSettings
+from app.utils.singleton_meta import SingletonMeta
 
 
 class LLMProvider(metaclass=SingletonMeta):
@@ -99,7 +99,7 @@ class LLMProvider(metaclass=SingletonMeta):
 
         raise ValueError("Unsupported value for llm backend")
 
-    async def _embedding_model(self, embedding_model_id: str, params: dict) -> BaseLLM:
+    async def _embedding_model(self, embedding_model_id: str, params: dict) -> Embeddings:
         if self.settings.BACKEND == LLMBackend.OLLAMA:
             return OllamaEmbeddings(
                 model=embedding_model_id, base_url=self.settings.backend_setting.BASE_URL, **params

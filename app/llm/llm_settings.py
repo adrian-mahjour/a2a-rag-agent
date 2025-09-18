@@ -2,8 +2,8 @@ from functools import cached_property
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from a2a_rag_agent.llm.llm_backend import LLMBackend
-from a2a_rag_agent.llm.ollama import OllamaSettings
+from app.llm.llm_backend import LLMBackend
+from app.llm.ollama import OllamaSettings
 
 
 class LLMSettings(BaseSettings):

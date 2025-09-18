@@ -3,9 +3,9 @@ import os
 import yaml
 from dotenv import load_dotenv
 
-from a2a_rag_agent.llm.llm_provider import LLMProvider
-from a2a_rag_agent.llm.llm_settings import LLMSettings
-from a2a_rag_agent.genai.initialize import load_prompts, create_chain
+from app.llm.llm_provider import LLMProvider
+from app.llm.llm_settings import LLMSettings
+from app.genai.initialize import load_prompts, create_chain
 
 load_dotenv()
 
@@ -26,8 +26,11 @@ async def main():
     print("initialized")
 
     print("calling model...")
-    response = chain.invoke({})  # empty dict, bc no inputs to prompt
-    print(response)
+    # response = chain.invoke({})  # empty dict, bc no inputs to prompt
+    # print(response)
+
+    async for chunk in llm.astream("Write me a 1 verse song about sparkling water."):
+        print(chunk, end="|", flush=True)
 
 
 if __name__ == "__main__":

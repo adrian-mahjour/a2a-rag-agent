@@ -1,19 +1,15 @@
 import os
-
 from collections.abc import AsyncIterable
 from typing import Any, Literal
 
 import httpx
-
 from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from pydantic import BaseModel
-from langchain_ollama import ChatOllama
-
 
 memory = MemorySaver()
 
@@ -79,7 +75,7 @@ class CurrencyAgent:
 
     def __init__(self):
         # TODO: fix this!
-        self.model = ChatOllama(model="qwen3:1.7b", temperature=0)
+        self.model = ChatOllama(model="llama3.2:3b", temperature=0)
         self.tools = [get_exchange_rate]
 
         self.graph = create_react_agent(
@@ -89,6 +85,11 @@ class CurrencyAgent:
             prompt=self.SYSTEM_INSTRUCTION,
             response_format=(self.FORMAT_INSTRUCTION, ResponseFormat),
         )
+
+    def invoke(self, query: str, context_id: str) -> dict[str, Any]:
+        config: RunnableConfig = {"configurable": {"thread_id": context_id}}
+        self.graph.invoke({"messages": [("user", query)]}, config)
+        return self.get_agent_response(config)
 
     async def stream(self, query, context_id) -> AsyncIterable[dict[str, Any]]:
         inputs = {"messages": [("user", query)]}
