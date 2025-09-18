@@ -62,7 +62,7 @@ sequenceDiagram
    cd samples/python/agents/langgraph
    ```
 
-2. Create an environment file with your API key:
+2. Create an environment file following `.env.sample`:
 
    ```bash
    If you're using a Google Gemini model (gemini-pro, etc.):
@@ -77,20 +77,20 @@ sequenceDiagram
 
    ```
 
-3. Run the agent:
+3. Start the A2A Server:
 
    ```bash
    # Basic run on default port 10000
-   uv run app
+   uv run start_a2a_server.py
 
    # On custom host/port
-   uv run app --host 0.0.0.0 --port 8080
+   uv run start_a2a_server.py --host 0.0.0.0 --port 8080
    ```
 
-4. In a separate terminal, run the test client:
+4. In a separate terminal, test the client:
 
    ```bash
-   uv run app/test_client.py
+   uv run test_client.py
    ```
 
 ## Build Container Image
