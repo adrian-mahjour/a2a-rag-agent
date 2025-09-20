@@ -1,148 +1,137 @@
 import os
-from typing import Literal
+from collections.abc import AsyncIterable
+from typing import Any
 
-from dotenv import load_dotenv
-from langchain.tools.retriever import create_retriever_tool
-from langchain_core.embeddings.embeddings import Embeddings
-from langchain_core.language_models.llms import BaseLLM
-from langchain_core.messages.base import BaseMessage
-from langchain_core.tools.simple import Tool
-from langchain_core.vectorstores import VectorStore
-from langchain_ollama import ChatOllama
-from langchain_text_splitters.base import TextSplitter
-from langgraph.graph import END, START, MessagesState, StateGraph
+import yaml
+from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.runnables import RunnableConfig
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph.state import CompiledStateGraph
-from langgraph.prebuilt import ToolNode, tools_condition
-from pydantic import BaseModel, Field
 
-from a2a_rag_agent.genai.initialize import load_prompts
+from a2a_rag_agent.graph.agentic_rag_graph import AgenticRagGraph, init_retriever_tool
+from a2a_rag_agent.llm.llm_provider import LLMProvider
+from a2a_rag_agent.llm.llm_settings import LLMSettings
+
+memory = MemorySaver()  # TODO: what is this for?
 
 
-load_dotenv()
+async def init_graph() -> CompiledStateGraph:
+    """initializes and compiles the agent graph"""
+    llm_settings = LLMSettings()
+    llm_provider = LLMProvider(settings=llm_settings)
 
+    model_id = os.environ["LLM_MODEL_ID"]
+    embedding_model_id = os.environ["EMBEDDING_MODEL_ID"]
+    with open("config/models.yaml", "r", encoding="utf-8") as f:  # TODO: env vars
+        model_params = yaml.safe_load(f)[model_id]
+    with open("config/models.yaml", "r", encoding="utf-8") as f:
+        embedding_model_params = yaml.safe_load(f)[embedding_model_id]
 
-def init_retriver_tool(
-    input_file: str,
-    text_splitter: TextSplitter,
-    embedding_model: Embeddings,
-    vec_store: VectorStore,
-) -> Tool:
-    with open(input_file) as f:
-        content = f.read()
-
-    # Create documents
-    documents = text_splitter.create_documents([content])
-
-    # Create vector store
-    vector_store = vec_store.from_documents(documents=documents, embedding=embedding_model)
-
-    # Create retreiver tool
-    # TODO: make customizable
-    retriever = vector_store.as_retriever(search_kwargs={"k": 10})
-
-    retriever_tool = create_retriever_tool(
-        retriever=retriever,
-        name="retreive_report_info",
-        description="Search and retrun information about reports",
+    llm = await llm_provider.chat_model(llm_model_id=model_id, params=model_params)
+    embedding_model = await llm_provider.embedding_model(
+        embedding_model_id=embedding_model_id, params=embedding_model_params
     )
+    print("Initialized models")
 
-    return retriever_tool
-
-
-class GradeDocuments(BaseModel):
-    """Create docuemtns using a binary score for relevance check"""
-
-    binary_score: str = Field(
-        description="Relevance score: 'yes' if relevant, or 'no' if not relevant"
+    retriever_tool = init_retriever_tool(
+        input_file="data/report.txt",
+        text_splitter=RecursiveCharacterTextSplitter(
+            chunk_size=150, chunk_overlap=24, length_function=len, is_separator_regex=False
+        ),
+        embedding_model=embedding_model,
+        vec_store=InMemoryVectorStore,
     )
+    rag_graph = AgenticRagGraph(llm=llm, retriever_tool=retriever_tool)
+    print("Compiling graph...")
+    graph = rag_graph.compile_graph()
+
+    return graph
 
 
-class AgenticRag:
-    def __init__(self, llm: BaseLLM, retriever_tool: Tool) -> None:
-        # TODO: fix this
-        self.agent_model = llm
-        self.retriever_tool = retriever_tool
-        self.prompts = load_prompts(prompt_config_filepath="config/prompts.yaml")
+class RAGAgent:
 
-    def generate_query_or_respond(self, state: MessagesState) -> dict[str, list[BaseMessage]]:
-        """Call the model the generate a response based on the current state.
-        Given the question, it will decide to retrieve using retriever tool, or simply repond
-        to the user"""
+    def __init__(self, graph: CompiledStateGraph):
+        self.graph = graph
 
-        response = self.agent_model.bind_tools([self.retriever_tool]).invoke(state["messages"])
-        return {"messages": [response]}
+    @classmethod
+    async def create(cls):
+        # Perform asynchronous operations here
+        graph = await init_graph()
+        return cls(graph)
 
-    def grade_documents(
-        self, state: MessagesState
-    ) -> Literal["generate_answer"] | Literal["rewrite_question"]:
-        """Determine wheter the retrived documents are relevant to the question"""
+    def invoke(self, query: str, context_id: str) -> dict[str, Any]:
+        config: RunnableConfig = {"configurable": {"thread_id": context_id}}
+        response = self.graph.invoke({"messages": [("user", query)]}, config)
+        return {
+            "is_task_complete": False,
+            "require_user_input": True,
+            "content": response.content,  # TODO: fix
+        }
 
-        question = state["messages"][0].content
-        context = state["messages"][-1].content
+    async def stream(self, query, context_id) -> AsyncIterable[dict[str, Any]]:
+        inputs = {"messages": [("user", query)]}
+        config = {"configurable": {"thread_id": context_id}}
 
-        prompt = self.prompts["grade_prompt"].prompt_value.format(
-            question=question, context=context
-        )
+        for item in self.graph.stream(inputs, config, stream_mode="values"):
+            message = item["messages"][-1]
 
-        response = self.agent_model.with_structured_output(GradeDocuments).invoke(
-            [{"role": "user", "content": prompt}]
-        )
+            # If the AI has called a tool
+            if (
+                isinstance(message, AIMessage)
+                and message.tool_calls
+                and len(message.tool_calls) > 0
+            ):
+                yield {
+                    "is_task_complete": False,
+                    "require_user_input": False,
+                    "content": f"AI is calling a tool: {message.tool_calls[0]}",
+                }
 
-        score = response.binary_score
+            # If the message is a response from a tool
+            elif isinstance(message, ToolMessage):
+                yield {
+                    "is_task_complete": False,
+                    "require_user_input": False,
+                    "content": f"Tool response: {message.content}",
+                }
+        # Otherwise, the agent has returned its final response
+        yield {
+            "is_task_complete": False,
+            "require_user_input": True,
+            "content": message.content,
+        }
 
-        if score == "yes":
-            print("=== [DECISION: DOCS RELEVANT] ===")
-            return "generate_answer"
+    # def get_agent_response(self, config):
+    #     current_state = self.graph.get_state(config)
+    #     structured_response = current_state.values.get("structured_response")
+    #     if structured_response and isinstance(structured_response, ResponseFormat):
+    #         # Parse the final response from the agent using the ResponseFormat structure
+    #         if structured_response.status == "input_required":
+    #             return {
+    #                 "is_task_complete": False,
+    #                 "require_user_input": True,
+    #                 "content": structured_response.message,
+    #             }
+    #         if structured_response.status == "error":
+    #             return {
+    #                 "is_task_complete": False,
+    #                 "require_user_input": True,
+    #                 "content": structured_response.message,
+    #             }
+    #         if structured_response.status == "completed":
+    #             return {
+    #                 "is_task_complete": True,
+    #                 "require_user_input": False,
+    #                 "content": structured_response.message,
+    #             }
 
-        print("=== [DECISION: DOCS NOT RELEVANT] ===")
-        return "rewrite_question"
+    #     # If the response was not a structured response, indicate an error occurred
+    #     return {
+    #         "is_task_complete": False,
+    #         "require_user_input": True,
+    #         "content": ("We are unable to process your request at the moment. Please try again."),
+    #     }
 
-    def rewrite_question(self, state: MessagesState) -> dict[str, list[BaseMessage]]:
-        """Rewrites the original user question"""
-        question = state["messages"][0].content
-
-        prompt = self.prompts["rewrite_prompt"].prompt_value.format(question=question)
-
-        response = self.agent_model.invoke([{"role": "user", "content": prompt}])
-
-        return {"messages": [response]}
-
-    def generate_answer(self, state: MessagesState) -> dict[str, list[BaseMessage]]:
-        """Generates an answer"""
-        question = state["messages"][0].content
-        context = state["messages"][-1].content
-
-        prompt = self.prompts["generate_prompt"].prompt_value.format(
-            question=question, context=context
-        )
-
-        response = self.agent_model.invoke([{"role": "user", "content": prompt}])
-
-        return {"messages": [response]}
-
-    def compile_graph(self) -> CompiledStateGraph:
-        """Compiles the AgenticRAG graph"""
-        graph_builder = StateGraph(MessagesState)
-
-        # Define the nodes
-        graph_builder.add_node(self.generate_query_or_respond)
-        graph_builder.add_node("retrieve", ToolNode([self.retriever_tool]))
-        graph_builder.add_node(self.rewrite_question)
-        graph_builder.add_node(self.generate_answer)
-
-        # Define edges
-        graph_builder.add_edge(START, "generate_query_or_respond")
-        graph_builder.add_conditional_edges(
-            "generate_query_or_respond", tools_condition, {"tools": "retrieve", END: END}
-        )
-        graph_builder.add_conditional_edges("retrieve", self.grade_documents)
-        graph_builder.add_edge("generate_answer", END)
-        graph_builder.add_edge("rewrite_question", "generate_query_or_respond")
-
-        # TODO: compile with memory
-        # checkpointer = InMemorySaver()
-        # graph = graph_builder.compile(checkpointer=checkpointer)
-
-        graph = graph_builder.compile()
-
-        return graph
+    SUPPORTED_CONTENT_TYPES = ["text", "text/plain"]

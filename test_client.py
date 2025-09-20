@@ -1,10 +1,12 @@
+"""Makes a sample call to the A2A server"""
+
+import asyncio
 import logging
 from typing import Any
 from uuid import uuid4
-import json
 
 import httpx
-from a2a.client import A2ACardResolver, A2AClient, ClientConfig, ClientFactory
+from a2a.client import A2ACardResolver, ClientConfig, ClientFactory, create_text_message_object
 from a2a.types import (
     AgentCard,
     MessageSendParams,
@@ -13,14 +15,14 @@ from a2a.types import (
     TransportProtocol,
 )
 from a2a.utils.constants import AGENT_CARD_WELL_KNOWN_PATH, EXTENDED_AGENT_CARD_PATH
-from a2a_rag_agent.simple_client import A2ASimpleClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)  # Get a logger instance
-base_url = "http://localhost:10000"
+base_url = "http://localhost:10000"  # TODO: env var
 
 
-async def fetch_agent_card(resolver: A2ACardResolver, base_url: str):
+async def fetch_agent_card(resolver: A2ACardResolver, base_url: str) -> AgentCard:
+    """Fetches the agent's card from the server"""
     # Fetch Public Agent Card and Initialize Client
     final_agent_card_to_use: AgentCard | None = None
 
@@ -84,45 +86,34 @@ async def main() -> None:
         agent_card = await fetch_agent_card(resolver=resolver, base_url=base_url)
 
         # # Create A2A client with the agent card
-        client = A2AClient(httpx_client=httpx_client, agent_card=agent_card)
+        config = ClientConfig(
+            httpx_client=httpx_client,
+            supported_transports=[
+                TransportProtocol.jsonrpc,
+                TransportProtocol.http_json,
+            ],
+            use_client_preference=True,
+        )
 
-        # config = ClientConfig(
-        #     httpx_client=httpx_client,
-        #     supported_transports=[
-        #         TransportProtocol.jsonrpc,
-        #         TransportProtocol.http_json,
-        #     ],
-        #     use_client_preference=True,
-        # )
-
-        # factory = ClientFactory(config)
-        # client = factory.create(final_agent_card_to_use)
+        factory = ClientFactory(config)
+        client = factory.create(agent_card)
 
         logger.info("A2AClient initialized.")
 
-        send_message_payload: dict[str, Any] = {
-            "message": {
-                "role": "user",
-                "parts": [{"kind": "text", "text": "how much is 10 USD in INR?"}],
-                "message_id": uuid4().hex,
-            },
-        }
-        # request = SendMessageRequest(
-        #     id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        # )
+        # Define the payload
+        message_obj = create_text_message_object(content="What is the revenue of software group?")
 
-        streaming_request = SendStreamingMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        )
+        # Send the message
+        stream_response = client.send_message(message_obj)
 
-        stream_response = client.send_message_streaming(streaming_request)
-
+        # Iterate through the stream and print message
         async for chunk in stream_response:
-            # print(chunk.model_dump(mode="json", exclude_none=True))
-            print(chunk.model_dump_json(indent=2, exclude_none=True))
+            if chunk[-1] is not None:
+                print(f"{chunk[-1].model_dump_json(indent=2, exclude_none=True)}")
+            else:
+                print(f"{chunk[0].model_dump_json(indent=2, exclude_none=True)}")
+            print("\n")
 
 
 if __name__ == "__main__":
-    import asyncio
-
     asyncio.run(main())

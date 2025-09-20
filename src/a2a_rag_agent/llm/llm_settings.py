@@ -14,6 +14,7 @@ class LLMSettings(BaseSettings):
 
     BACKEND: LLMBackend = LLMBackend.OLLAMA  # hardcoded to ollama
 
+    # TODO: what is this doing? needed?
     @cached_property
     def backend_setting(self) -> OllamaSettings | None:
         if self.BACKEND == LLMBackend.OLLAMA:

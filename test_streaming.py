@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from a2a_rag_agent.llm.llm_provider import LLMProvider
 from a2a_rag_agent.llm.llm_settings import LLMSettings
 from a2a_rag_agent.genai.initialize import load_prompts, create_chain
+from langchain_core.language_models.llms import BaseLLM
 
 load_dotenv()
 
@@ -20,7 +21,7 @@ async def main():
     with open("config/models.yaml", "r", encoding="utf-8") as f:
         model_params = yaml.safe_load(f)[model_id]
 
-    llm = await llm_provider.llm_model(llm_model_id=model_id, params=model_params)
+    llm: BaseLLM = await llm_provider.llm_model(llm_model_id=model_id, params=model_params)
 
     chain = create_chain(model=llm, prompt=prompts["test_prompt"])
     print("initialized")

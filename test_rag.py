@@ -8,14 +8,13 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from a2a_rag_agent.llm.llm_provider import LLMProvider
 from a2a_rag_agent.llm.llm_settings import LLMSettings
-from a2a_rag_agent.rag_agent import AgenticRag, init_retriver_tool
+from a2a_rag_agent.graph.agentic_rag_graph import AgenticRagGraph, init_retriever_tool
 from a2a_rag_agent.utils.langgraph_streaming import stream_graph_updates
 
 load_dotenv()
 
 
 async def main():
-    print("hello")
     llm_settings = LLMSettings()
     llm_provider = LLMProvider(settings=llm_settings)
 
@@ -32,7 +31,7 @@ async def main():
     )
     print("initialized models")
 
-    retriever_tool = init_retriver_tool(
+    retriever_tool = init_retriever_tool(
         input_file="data/report.txt",
         text_splitter=RecursiveCharacterTextSplitter(
             chunk_size=150, chunk_overlap=24, length_function=len, is_separator_regex=False
@@ -40,14 +39,13 @@ async def main():
         embedding_model=embedding_model,
         vec_store=InMemoryVectorStore,
     )
-    agentic_rag = AgenticRag(llm=llm, retriever_tool=retriever_tool)
+    rag_graph = AgenticRagGraph(llm=llm, retriever_tool=retriever_tool)
     print("compiling graph...")
-    graph = agentic_rag.compile_graph()
+    graph = rag_graph.compile_graph()
 
+    query = "What is the revenue that Software group generated?"
     print("invoking graph...")
-    stream_graph_updates(
-        graph=graph, user_input="What is the revenue that Software group generated?", config={}
-    )
+    stream_graph_updates(graph=graph, user_input=query, config={})
 
 
 if __name__ == "__main__":

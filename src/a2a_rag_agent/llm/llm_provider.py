@@ -1,6 +1,5 @@
 import asyncio
 
-from langchain_core.documents.compressor import BaseDocumentCompressor
 from langchain_core.embeddings.embeddings import Embeddings
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM

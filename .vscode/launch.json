@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Currency Agent",
+      "name": "Launch A2A Server",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/app/__main__.py",
+      "program": "${workspaceFolder}/start_a2a_server.py",
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {

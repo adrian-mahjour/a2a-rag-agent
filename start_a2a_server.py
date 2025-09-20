@@ -1,11 +1,11 @@
+"""Starts the A2A server"""
+
+import asyncio
 import logging
-import os
 import sys
 
-import click
 import httpx
 import uvicorn
-
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import (
@@ -13,32 +13,31 @@ from a2a.server.tasks import (
     InMemoryPushNotificationConfigStore,
     InMemoryTaskStore,
 )
-from a2a.types import (
-    AgentCapabilities,
-    AgentCard,
-    AgentSkill,
-)
+from a2a.types import AgentCapabilities, AgentCard, AgentSkill
 from dotenv import load_dotenv
 
-from a2a_rag_agent.agent import CurrencyAgent
-from a2a_rag_agent.agent_executor import CurrencyAgentExecutor
-
+from a2a_rag_agent.rag_agent import RAGAgent
+from a2a_rag_agent.agent_executor import LanggraphAgentExecutor
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+HOST = "localhost"  # TODO: env var
+PORT = 10000
+
 
 class MissingAPIKeyError(Exception):
     """Exception for missing API key."""
 
 
-@click.command()
-@click.option("--host", "host", default="localhost")
-@click.option("--port", "port", default=10000)
-def main(host, port):
-    """Starts the Currency Agent server."""
+async def get_agent_executor():
+    return await LanggraphAgentExecutor.create()
+
+
+def main(agent_executor):
+    """Starts the A2A server."""
     try:
         # TODO: fix this with pydantic model
         # if os.getenv("model_source") == "google":
@@ -52,39 +51,37 @@ def main(host, port):
 
         capabilities = AgentCapabilities(streaming=True, push_notifications=True)
         skill = AgentSkill(
-            id="convert_currency",
-            name="Currency Exchange Rates Tool",
-            description="Helps with exchange values between various currencies",
-            tags=["currency conversion", "currency exchange"],
-            examples=["What is exchange rate between USD and GBP?"],
+            id="report_qna",
+            name="Q and A Earnings",
+            description="Answers questions on financial reports",
+            tags=["reports", "earnings"],
+            examples=["What is the revenue that Software group generated?"],
         )
         agent_card = AgentCard(
-            name="Currency Agent",
-            description="Helps with exchange rates for currencies",
-            url=f"http://{host}:{port}/",
+            name="Earnings Agent",
+            description="Helps with financial earnings reports",
+            url=f"http://{HOST}:{PORT}/",
             version="1.0.0",
-            default_input_modes=CurrencyAgent.SUPPORTED_CONTENT_TYPES,
-            default_output_modes=CurrencyAgent.SUPPORTED_CONTENT_TYPES,
+            default_input_modes=RAGAgent.SUPPORTED_CONTENT_TYPES,
+            default_output_modes=RAGAgent.SUPPORTED_CONTENT_TYPES,
             capabilities=capabilities,
             skills=[skill],
         )
 
-        # --8<-- [start:DefaultRequestHandler]
         httpx_client = httpx.AsyncClient()
         push_config_store = InMemoryPushNotificationConfigStore()
         push_sender = BasePushNotificationSender(
             httpx_client=httpx_client, config_store=push_config_store
         )
         request_handler = DefaultRequestHandler(
-            agent_executor=CurrencyAgentExecutor(),
+            agent_executor=agent_executor,
             task_store=InMemoryTaskStore(),
             push_config_store=push_config_store,
             push_sender=push_sender,
         )
         server = A2AStarletteApplication(agent_card=agent_card, http_handler=request_handler)
 
-        uvicorn.run(server.build(), host=host, port=port)
-        # --8<-- [end:DefaultRequestHandler]
+        uvicorn.run(server.build(), host=HOST, port=PORT)
 
     except MissingAPIKeyError as e:
         logger.error(f"Error: {e}")
@@ -95,4 +92,5 @@ def main(host, port):
 
 
 if __name__ == "__main__":
-    main()
+    agent_executor = asyncio.run(get_agent_executor())
+    main(agent_executor)
