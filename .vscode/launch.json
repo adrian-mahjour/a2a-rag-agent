@@ -13,6 +13,18 @@
       },
       "cwd": "${workspaceFolder}",
       "args": ["--host", "localhost", "--port", "10000"]
-    }
+    },
+    {
+            "name": "Python:Streamlit",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "streamlit",
+            "args": [
+                "run",
+                "${file}",
+                "--server.port",
+                "2000"
+            ]
+        }
   ]
 }
