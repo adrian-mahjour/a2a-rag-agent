@@ -1,7 +1,10 @@
+"""Utilities for streaming langgraph graphs"""
+
 from langgraph.graph.state import CompiledStateGraph
 
 
 def stream_graph_updates(graph: CompiledStateGraph, user_input: str, config: dict):
+    """Streams langgraph updates to terminal"""
 
     for event in graph.stream(
         {"messages": [{"role": "user", "content": user_input}]}, config=config

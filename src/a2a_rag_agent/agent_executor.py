@@ -1,4 +1,4 @@
-"""Agent executor responsible for translating LangGraph output to A2A protocol"""
+"""Agent Executor"""
 
 import logging
 
@@ -27,14 +27,14 @@ logger = logging.getLogger(__name__)
 
 
 class LanggraphAgentExecutor(AgentExecutor):
-    """LanggraphAgentExecutor."""
+    """Agent executor responsible for translating LangGraph output to A2A protocol"""
 
     def __init__(self, agent):
         self.agent = agent
 
     @classmethod
     async def create(cls):
-        # Perform asynchronous operations here
+        """Creates the agent executor"""
         agent = await RAGAgent.create()
         return cls(agent)
 
@@ -89,10 +89,11 @@ class LanggraphAgentExecutor(AgentExecutor):
                     break
 
         except Exception as e:
-            logger.error(f"An error occurred while streaming the response: {e}")
+            logger.error("An error occurred while streaming the response: %s", e)
             raise ServerError(error=InternalError()) from e
 
     def _validate_request(self, context: RequestContext) -> bool:
+        # TODO: input validation
         return False
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:

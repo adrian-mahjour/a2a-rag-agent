@@ -1,3 +1,5 @@
+"""Timing utilities"""
+
 import time
 from datetime import timedelta
 

@@ -1,0 +1,5 @@
+[MASTER]
+ignore-pattern=README.md
+
+[MESSAGES CONTROL]
+disable=fixme, line-too-long

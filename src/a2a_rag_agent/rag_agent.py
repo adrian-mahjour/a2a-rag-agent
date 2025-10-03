@@ -1,6 +1,8 @@
+"""Defines the RAG Agent"""
+
 import os
 from collections.abc import AsyncIterable
-from typing import Any
+from typing import Any, Self
 
 import yaml
 from langchain_core.messages import AIMessage, ToolMessage
@@ -51,17 +53,21 @@ async def init_graph() -> CompiledStateGraph:
 
 
 class RAGAgent:
+    """RAG Agent"""
 
-    def __init__(self, graph: CompiledStateGraph):
+    SUPPORTED_CONTENT_TYPES = ["text", "text/plain"]
+
+    def __init__(self, graph: CompiledStateGraph) -> None:
         self.graph = graph
 
     @classmethod
-    async def create(cls):
-        # Perform asynchronous operations here
+    async def create(cls) -> Self:
+        """Creates an instance of the class"""
         graph = await init_graph()
         return cls(graph)
 
     def invoke(self, query: str, context_id: str) -> dict[str, Any]:
+        """Defines syncronous invoke behaviour"""
         config: RunnableConfig = {"configurable": {"thread_id": context_id}}
         response = self.graph.invoke({"messages": [("user", query)]}, config)
         return {
@@ -71,6 +77,7 @@ class RAGAgent:
         }
 
     async def stream(self, query, context_id) -> AsyncIterable[dict[str, Any]]:
+        """Defines streaming behaviour"""
         inputs = {"messages": [("user", query)]}
         config = {"configurable": {"thread_id": context_id}}
 
@@ -102,36 +109,3 @@ class RAGAgent:
             "require_user_input": True,
             "content": message.content,
         }
-
-    # def get_agent_response(self, config):
-    #     current_state = self.graph.get_state(config)
-    #     structured_response = current_state.values.get("structured_response")
-    #     if structured_response and isinstance(structured_response, ResponseFormat):
-    #         # Parse the final response from the agent using the ResponseFormat structure
-    #         if structured_response.status == "input_required":
-    #             return {
-    #                 "is_task_complete": False,
-    #                 "require_user_input": True,
-    #                 "content": structured_response.message,
-    #             }
-    #         if structured_response.status == "error":
-    #             return {
-    #                 "is_task_complete": False,
-    #                 "require_user_input": True,
-    #                 "content": structured_response.message,
-    #             }
-    #         if structured_response.status == "completed":
-    #             return {
-    #                 "is_task_complete": True,
-    #                 "require_user_input": False,
-    #                 "content": structured_response.message,
-    #             }
-
-    #     # If the response was not a structured response, indicate an error occurred
-    #     return {
-    #         "is_task_complete": False,
-    #         "require_user_input": True,
-    #         "content": ("We are unable to process your request at the moment. Please try again."),
-    #     }
-
-    SUPPORTED_CONTENT_TYPES = ["text", "text/plain"]

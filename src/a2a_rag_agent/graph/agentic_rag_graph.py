@@ -1,4 +1,4 @@
-"""Defines the graph for the agent"""
+"""AgenticRAGGraph"""
 
 from typing import Literal
 
@@ -27,6 +27,8 @@ def init_retriever_tool(
     embedding_model: Embeddings,
     vec_store: VectorStore,
 ) -> Tool:
+    # TODO: this should be in it's own module?
+    """Creates a retriever tool"""
     with open(input_file, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -58,10 +60,12 @@ class GradeDocuments(BaseModel):
 
 
 class AgenticRagGraph:
+    """Defines the graph structure of the agnet"""
+
     def __init__(self, llm: BaseLLM, retriever_tool: Tool) -> None:
         self.agent_model = llm
         self.retriever_tool = retriever_tool
-        self.prompts = load_prompts(prompt_config_filepath="config/prompts.yaml")
+        self.prompts = load_prompts(prompt_config_filepath="config/prompts.yaml")  # TODO: env var
 
     def generate_query_or_respond(self, state: MessagesState) -> dict[str, list[BaseMessage]]:
         """Call the model the generate a response based on the current state.

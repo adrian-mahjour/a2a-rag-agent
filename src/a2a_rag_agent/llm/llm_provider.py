@@ -1,3 +1,5 @@
+"""LLMProvider"""
+
 import asyncio
 
 from langchain_core.embeddings.embeddings import Embeddings
@@ -7,11 +9,13 @@ from langchain_ollama import ChatOllama, OllamaEmbeddings, OllamaLLM
 
 from a2a_rag_agent.llm.llm_backend import LLMBackend
 from a2a_rag_agent.llm.llm_settings import LLMSettings
-from a2a_rag_agent.llm.ollama import OllamaSettings
+from a2a_rag_agent.llm.provider_settings import OllamaSettings
 from a2a_rag_agent.utils.singleton_meta import SingletonMeta
 
 
 class LLMProvider(metaclass=SingletonMeta):
+    """Interface to LLMs and embeddings model providers via langchain clients"""
+
     def __init__(self, settings: LLMSettings | None = None):
         self.settings = settings or LLMSettings()
         self.cache = {}
@@ -27,11 +31,14 @@ class LLMProvider(metaclass=SingletonMeta):
     async def test_connection(
         credentials: OllamaSettings, llm_model_id: str, params: dict
     ) -> BaseLLM | None:
+        """Tests ability to create a llm client"""
+        # TODO: raise error in try accept? is this the best way instead of a ping to the server?
         if isinstance(credentials, OllamaSettings):
             return OllamaLLM(model=llm_model_id, base_url=credentials.BASE_URL, **params)
         return None
 
     async def llm_model(self, llm_model_id: str, params: dict) -> BaseLLM:
+        """Returns the provider's LLM (e.g., OllamaLLM)"""
         cache_key = self._get_cache_key(
             model_type="llm_model", model_id=llm_model_id, params=params
         )
@@ -48,6 +55,7 @@ class LLMProvider(metaclass=SingletonMeta):
             return model
 
     async def chat_model(self, llm_model_id: str, params: dict) -> BaseChatModel:
+        """Returns the provider's ChatModel (e.g., ChatOllama)"""
         cache_key = self._get_cache_key(
             model_type="chat_llm_model", model_id=llm_model_id, params=params
         )
@@ -64,6 +72,7 @@ class LLMProvider(metaclass=SingletonMeta):
             return model
 
     async def embedding_model(self, embedding_model_id: str, params: dict) -> Embeddings:
+        """Returns the provider's Embeddings (e.g.,OllamaEmbeddings)"""
         cache_key = self._get_cache_key(
             model_type="embedding_model", model_id=embedding_model_id, params=params
         )

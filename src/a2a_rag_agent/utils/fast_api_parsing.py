@@ -1,12 +1,15 @@
+"""Utilitites for streaming graph w/ FastAPI"""
+
 import json
-from typing import Optional
+from typing import Any, AsyncGenerator, Optional
 from uuid import uuid4
 
 from langchain_core.messages import AIMessageChunk, HumanMessage
 from langgraph.graph.state import CompiledStateGraph
 
 
-def serialize_ai_message_chunk(chunk):
+def serialize_ai_message_chunk(chunk) -> str | list[str | dict]:
+    """Returns the AIMessageChunk content"""
     if isinstance(chunk, AIMessageChunk):
         return chunk.content
     raise TypeError(
@@ -16,7 +19,8 @@ def serialize_ai_message_chunk(chunk):
 
 async def generate_chat_responses(
     graph: CompiledStateGraph, message: str, checkpoint_id: Optional[str] = None
-):
+) -> AsyncGenerator[str, Any, None]:
+    """Generates chat reponses from a LangGraph async stream events"""
     is_new_conversation = checkpoint_id is None
 
     if is_new_conversation:

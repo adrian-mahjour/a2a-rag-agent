@@ -1,9 +1,13 @@
+"""PromptData"""
+
 from typing import List, Optional
 
 from pydantic import BaseModel
 
 
 class PromptData(BaseModel):
+    """Data model for prompts"""
+
     prompt_name: str
     description: Optional[str] = None
     prompt_value: str

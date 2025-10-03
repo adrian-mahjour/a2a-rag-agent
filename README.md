@@ -128,3 +128,11 @@ curl -X POST http://localhost:10000/ \
   }
 }'
 ```
+
+## Development
+
+Linting
+
+```
+pylint src/ -rn -sn --rcfile=.pylintrc
+```
