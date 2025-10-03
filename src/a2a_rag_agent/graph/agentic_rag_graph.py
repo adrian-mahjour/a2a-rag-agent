@@ -1,5 +1,6 @@
 """AgenticRAGGraph"""
 
+import os
 from typing import Literal
 
 from dotenv import load_dotenv
@@ -15,8 +16,7 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, Field
 
-from a2a_rag_agent.genai.initialize import load_prompts
-
+from a2a_rag_agent.genai.models import PromptData
 
 load_dotenv()
 
@@ -62,10 +62,10 @@ class GradeDocuments(BaseModel):
 class AgenticRagGraph:
     """Defines the graph structure of the agnet"""
 
-    def __init__(self, llm: BaseLLM, retriever_tool: Tool) -> None:
+    def __init__(self, llm: BaseLLM, retriever_tool: Tool, prompts: dict[str, PromptData]) -> None:
         self.agent_model = llm
         self.retriever_tool = retriever_tool
-        self.prompts = load_prompts(prompt_config_filepath="config/prompts.yaml")  # TODO: env var
+        self.prompts = prompts
 
     def generate_query_or_respond(self, state: MessagesState) -> dict[str, list[BaseMessage]]:
         """Call the model the generate a response based on the current state.

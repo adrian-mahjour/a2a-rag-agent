@@ -5,17 +5,17 @@ from functools import cached_property
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from a2a_rag_agent.llm.llm_backend import LLMBackend
-from a2a_rag_agent.llm.provider_settings import OllamaSettings
+from a2a_rag_agent.utils.settings import OllamaSettings
 
 
-class LLMSettings(BaseSettings):
+class LLMProviderSettings(BaseSettings):
     """Defines the settings for the LLM Service"""
 
     model_config = SettingsConfigDict(
         env_file=".env", env_prefix="LLM_", env_file_encoding="utf-8", extra="ignore"
     )
 
-    BACKEND: LLMBackend = LLMBackend.OLLAMA  # hardcoded to ollama
+    BACKEND: LLMBackend
 
     # TODO: what is this doing? needed?
     @cached_property

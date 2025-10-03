@@ -2,10 +2,12 @@
 
 import asyncio
 import logging
+import os
 import sys
 
 import httpx
 import uvicorn
+from a2a.server.agent_execution import AgentExecutor
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import (
@@ -16,23 +18,21 @@ from a2a.server.tasks import (
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill
 from dotenv import load_dotenv
 
-from a2a_rag_agent.rag_agent import RAGAgent
 from a2a_rag_agent.agent_executor import LanggraphAgentExecutor
+from a2a_rag_agent.rag_agent import RAGAgent
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-HOST = "localhost"  # TODO: env var
-PORT = 10000
-
 
 class MissingAPIKeyError(Exception):
     """Exception for missing API key."""
 
 
-async def get_agent_executor():
+async def get_agent_executor() -> AgentExecutor:
+    """Creates the LangGraphAgentExecutor"""
     return await LanggraphAgentExecutor.create()
 
 
@@ -61,7 +61,7 @@ def main(agent_executor):
         agent_card = AgentCard(
             name="Earnings Agent",
             description="Helps with financial earnings reports",
-            url=f"http://{HOST}:{PORT}/",
+            url=f"http://{os.environ["A2A_SERVER_HOST"]}:{os.environ["A2A_SERVER_PORT"]}",
             version="1.0.0",
             default_input_modes=RAGAgent.SUPPORTED_CONTENT_TYPES,
             default_output_modes=RAGAgent.SUPPORTED_CONTENT_TYPES,
@@ -82,7 +82,11 @@ def main(agent_executor):
         )
         server = A2AStarletteApplication(agent_card=agent_card, http_handler=request_handler)
 
-        uvicorn.run(server.build(), host=HOST, port=PORT)
+        uvicorn.run(
+            server.build(),
+            host=os.environ["A2A_SERVER_HOST"],
+            port=int(os.environ["A2A_SERVER_PORT"]),
+        )
 
     except MissingAPIKeyError as e:
         logger.error(f"Error: {e}")

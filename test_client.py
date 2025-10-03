@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-
+import os
 import httpx
 from a2a.client import A2ACardResolver, ClientConfig, ClientFactory, create_text_message_object
 from a2a.types import (
@@ -10,20 +10,22 @@ from a2a.types import (
     TransportProtocol,
 )
 from a2a.utils.constants import AGENT_CARD_WELL_KNOWN_PATH, EXTENDED_AGENT_CARD_PATH
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)  # Get a logger instance
-base_url = "http://localhost:10000"  # TODO: env var
 
 
-async def fetch_agent_card(resolver: A2ACardResolver, base_url: str) -> AgentCard:
+async def fetch_agent_card(resolver: A2ACardResolver) -> AgentCard:
     """Fetches the agent's card from the server"""
     # Fetch Public Agent Card and Initialize Client
     final_agent_card_to_use: AgentCard | None = None
 
     try:
         logger.info(
-            f"Attempting to fetch public agent card from: {base_url}{AGENT_CARD_WELL_KNOWN_PATH}"
+            f"Attempting to fetch public agent card from: {resolver.base_url}{AGENT_CARD_WELL_KNOWN_PATH}"
         )
         _public_card = await resolver.get_agent_card()  # Fetches from default public path
         logger.info("Successfully fetched public agent card:")
@@ -36,7 +38,7 @@ async def fetch_agent_card(resolver: A2ACardResolver, base_url: str) -> AgentCar
                 logger.info(
                     "\nPublic card supports authenticated extended card. "
                     "Attempting to fetch from: "
-                    f"{base_url}{EXTENDED_AGENT_CARD_PATH}"
+                    f"{resolver.base_url}{EXTENDED_AGENT_CARD_PATH}"
                 )
                 auth_headers_dict = {"Authorization": "Bearer dummy-token-for-extended-card"}
                 _extended_card = await resolver.get_agent_card(
@@ -74,11 +76,11 @@ async def main() -> None:
         # Initialize A2ACardResolver
         resolver = A2ACardResolver(
             httpx_client=httpx_client,
-            base_url=base_url,
+            base_url=f"http://{os.environ["A2A_SERVER_HOST"]}:{os.environ["A2A_SERVER_PORT"]}",
         )
 
         # Fetch the agent card
-        agent_card = await fetch_agent_card(resolver=resolver, base_url=base_url)
+        agent_card = await fetch_agent_card(resolver=resolver)
 
         # # Create A2A client with the agent card
         config = ClientConfig(

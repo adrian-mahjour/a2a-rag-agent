@@ -1,6 +1,7 @@
 """Basic Streamlit UI for testing the A2A Agent"""
 
 import json
+import os
 import logging
 from uuid import uuid4
 
@@ -9,7 +10,6 @@ import streamlit as st
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)  # Get a logger instance
-A2A_URL = "http://localhost:10000"  # TODO: env var
 
 
 # TODO: why is request returning ping?
@@ -61,4 +61,8 @@ if prompt := st.chat_input("What was the revenue of the software group?"):
 
     # Send the message
     with st.chat_message("ai"):
-        st.write_stream(get_data_from_streaming_api(A2A_URL, prompt))
+        st.write_stream(
+            get_data_from_streaming_api(
+                f"http://{os.environ["A2A_SERVER_HOST"]}:{os.environ["A2A_SERVER_PORT"]}", prompt
+            )
+        )

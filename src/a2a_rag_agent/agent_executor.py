@@ -93,7 +93,7 @@ class LanggraphAgentExecutor(AgentExecutor):
             raise ServerError(error=InternalError()) from e
 
     def _validate_request(self, context: RequestContext) -> bool:
-        # TODO: input validation
+        """input validation, return True if error"""
         return False
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:

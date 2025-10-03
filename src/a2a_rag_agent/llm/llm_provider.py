@@ -8,16 +8,15 @@ from langchain_core.language_models.llms import BaseLLM
 from langchain_ollama import ChatOllama, OllamaEmbeddings, OllamaLLM
 
 from a2a_rag_agent.llm.llm_backend import LLMBackend
-from a2a_rag_agent.llm.llm_settings import LLMSettings
-from a2a_rag_agent.llm.provider_settings import OllamaSettings
+from a2a_rag_agent.utils.settings import LLMProviderSettings, OllamaSettings
 from a2a_rag_agent.utils.singleton_meta import SingletonMeta
 
 
 class LLMProvider(metaclass=SingletonMeta):
     """Interface to LLMs and embeddings model providers via langchain clients"""
 
-    def __init__(self, settings: LLMSettings | None = None):
-        self.settings = settings or LLMSettings()
+    def __init__(self, settings: LLMProviderSettings | None = None):
+        self.settings = settings or LLMProviderSettings()
         self.cache = {}
         self.lock = asyncio.Lock()
 

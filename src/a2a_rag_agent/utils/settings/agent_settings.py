@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# TODO:not used
+
 
 class AgentSettings(BaseSettings):
     """Settings for the Agent"""
@@ -12,7 +14,7 @@ class AgentSettings(BaseSettings):
         env_file=".env", env_prefix="AGENT_", env_file_encoding="utf-8", extra="ignore"
     )
 
-    CONFIG_PATH: str
-    GREETINGS_PATH: str
-    MCP_URL: Optional[str] = None
-    REPORT_STYLE_PATH: Optional[str] = None
+    LLM_MODEL_ID: str
+    EMBEDDING_MODEL_ID: str
+    MODEL_CONFIG_PATH: str
+    PROMPTS_CONFIG_PATH: str
