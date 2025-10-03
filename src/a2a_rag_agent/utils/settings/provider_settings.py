@@ -17,10 +17,9 @@ class LLMProviderSettings(BaseSettings):
 
     BACKEND: LLMBackend
 
-    # TODO: what is this doing? needed?
     @cached_property
     def backend_setting(self) -> OllamaSettings | None:
-        """returns the model settings"""
+        """returns the model settings used to create langchain clients"""
         if self.BACKEND == LLMBackend.OLLAMA:
             return OllamaSettings()
         return None

@@ -9,8 +9,6 @@ from langchain_core.runnables import Runnable
 
 from a2a_rag_agent.genai.models import PromptData
 
-# TODO: create a setting pydantic for this
-
 
 def load_prompts(prompt_config_filepath: str) -> dict[str, PromptData]:
     """Loads the prompts from a yaml file"""

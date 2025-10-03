@@ -1,9 +1,7 @@
 """AgenticRAGGraph"""
 
-import os
 from typing import Literal
 
-from dotenv import load_dotenv
 from langchain.tools.retriever import create_retriever_tool
 from langchain_core.embeddings.embeddings import Embeddings
 from langchain_core.language_models.llms import BaseLLM
@@ -17,8 +15,6 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, Field
 
 from a2a_rag_agent.genai.models import PromptData
-
-load_dotenv()
 
 
 def init_retriever_tool(

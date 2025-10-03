@@ -1,10 +1,6 @@
 """AgentSettings"""
 
-from typing import Optional
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-# TODO:not used
 
 
 class AgentSettings(BaseSettings):
