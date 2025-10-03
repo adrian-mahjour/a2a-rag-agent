@@ -56,12 +56,6 @@ class LanggraphAgentExecutor(AgentExecutor):
         try:
             async for item in self.agent.stream(query, task.context_id):
                 # Update the TaskState and artifacts based on the dict returned by the agent
-
-                # example items dict {
-                #     "is_task_complete": False,
-                #     "require_user_input": False,
-                #     "content": "Looking up the exchange rates...",
-                # }
                 is_task_complete = item["is_task_complete"]
                 require_user_input = item["require_user_input"]
 
