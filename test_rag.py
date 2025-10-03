@@ -1,3 +1,5 @@
+"""Tests the agentic rag graph"""
+
 import asyncio
 import os
 

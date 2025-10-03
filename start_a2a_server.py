@@ -49,6 +49,7 @@ def main(agent_executor):
         #     if not os.getenv("TOOL_LLM_NAME"):
         #         raise MissingAPIKeyError("TOOL_LLM_NAME environment not variable not set.")
 
+        # TODO: define as a json file for editability??
         capabilities = AgentCapabilities(streaming=True, push_notifications=True)
         skill = AgentSkill(
             id="report_qna",
