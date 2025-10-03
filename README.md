@@ -38,11 +38,26 @@ sequenceDiagram
     end
 ```
 
-## Setup & Running
+## Setup
 
-1. Create an environment file following `.env.sample`:
+1. Create an environment file following `.env.sample`
 
-2. Start the A2A Server:
+2. Optionally pull the required models
+
+```
+ollama pull llama3.2:3b
+ollama pull all-minilm:33m
+```
+
+3. Start ollama
+
+```
+ollama serve
+```
+
+## Running
+
+1. Start the A2A Server:
 
    ```bash
    # Basic run on default port 10000
@@ -52,10 +67,10 @@ sequenceDiagram
    uv run start_a2a_server.py --host 0.0.0.0 --port 8080
    ```
 
-3. In a separate terminal, test the client:
+2. In a separate terminal, start the Streamlit UI:
 
    ```bash
-   uv run test_client.py
+   streamlit run streamlit_ui.py
    ```
 
 ## Examples
