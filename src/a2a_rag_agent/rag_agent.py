@@ -74,7 +74,7 @@ class RAGAgent:
         inputs = {"messages": [("user", query)]}
         config = {"configurable": {"thread_id": context_id}}
 
-        for item in self.graph.stream(inputs, config, stream_mode="values"):
+        async for item in self.graph.astream(inputs, config, stream_mode="values"):
             message = item["messages"][-1]
 
             # If the AI has called a tool
